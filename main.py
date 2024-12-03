@@ -65,7 +65,9 @@ def parse(tokens):
     
     def _parse_block(index):
         block = []
-        while index < len(tokens) and tokens[index] not in {'else', 'end'}:
+        while index < len(tokens):
+            if tokens[index] in {'else', 'end'}:
+                break
             stmt, index = parse_statement(index)
             if stmt is not None:
                 block.append(stmt)
@@ -73,7 +75,9 @@ def parse(tokens):
 
     block = []
     def parse_block(index):
-        while index < len(tokens) and tokens[index] not in {'else', 'end'}:
+        while index < len(tokens):
+            if tokens[index] in {'else', 'end'}:
+                break
             stmt, index = parse_statement(index)
             if stmt is not None:
                 block.append(stmt)
