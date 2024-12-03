@@ -22,7 +22,10 @@ def parse(tokens):
         print(f"Parsing token: {token}")
         if token == 'macro':
             macro_name = tokens[index + 1]
-            macro_body, index = _parse_block(index + 2)
+            try:
+                macro_body, index = _parse_block(index + 2)
+            except:
+                macro_body, index = parse_expression(index + 2)
             macros[macro_name] = macro_body
             return None, index+1
         elif token in macros:
@@ -104,10 +107,14 @@ class Interpreter:
             raise RuntimeError(f"Unknown AST node type: {ast['type']}")
 
     def _evaluate_condition(self, condition):
+        if condition in macros:
+            return macros[condition]
         return bool(int(condition))
 
     def _convert_arg(self, arg):
-        if arg.isdigit():
+        if arg in macros:
+            return macros[arg]
+        elif arg.isdigit():
             return int(arg)
         elif arg.startswith('"') and arg.endswith('"'):
             return arg.strip('"').encode('utf-8')

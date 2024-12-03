@@ -1,10 +1,13 @@
 load "kernel32.dll"
 
+macro true 1 end
+macro false 0 end
+
 macro GetTickCount
     call "kernel32.dll" "GetTickCount"
 end
 
-if 1 then
+if true then
     GetTickCount
 else
     call "kernel32.dll" "Beep" 750 500
