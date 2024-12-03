@@ -1,0 +1,11 @@
+load "kernel32.dll"
+
+macro GetTickCount
+    call "kernel32.dll" "GetTickCount"
+end
+
+if 1 then
+    GetTickCount
+else
+    call "kernel32.dll" "Beep" 750 500
+end
