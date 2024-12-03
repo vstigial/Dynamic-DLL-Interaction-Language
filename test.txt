@@ -4,11 +4,12 @@ macro true 1 end
 macro false 0 end
 
 macro GetTickCount
-    call "kernel32.dll" "GetTickCount"
+    call "kernel32.dll" "GetTickCount" endcall
 end
 
 if true then
     GetTickCount
+    call "./funcs.dll" "Print" "Hello" endcall
 else
-    call "kernel32.dll" "Beep" 750 500
+    call "kernel32.dll" "Beep" 750 500 endcall
 end

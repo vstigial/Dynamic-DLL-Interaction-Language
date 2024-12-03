@@ -53,10 +53,13 @@ def parse(tokens):
             func = tokens[index + 2]
             args = []
             i = index + 3
-            while i < len(tokens) and tokens[i] not in {'if', 'then', 'else', 'end'}:
+            while i < len(tokens) and tokens[i] != 'endcall':
                 args.append(tokens[i])
                 i += 1
-            return {'type': 'call', 'dll': dll, 'function': func, 'args': args}, i
+            return {'type': 'call', 'dll': dll, 'function': func, 'args': args}, i + 1  # skip "endcall"
+        elif token == 'return_value':
+            # return_value is a runtime calculated value
+            return {'type': 'return'}, index + 1
         else:
             raise SyntaxError(f"Unknown statement: {token}")
     
@@ -78,8 +81,10 @@ def parse(tokens):
 
     return parse_block(0)[0]
 
+return_value = None
 class Interpreter:
     def eval(self, ast):
+        global return_value
         if isinstance(ast, list):
             for statement in ast:
                 self.eval(statement)
@@ -99,16 +104,23 @@ class Interpreter:
                 dll = ctypes.WinDLL(dll_name)
                 loaded_dlls[dll_name] = dll
             func = getattr(dll, function_name)
-            print("Executed function: " + function_name.strip() + "\n-   Return Value: " + str(func(*args)))
+            return_value = func(*args)
+            print("Executed function: " + function_name.strip() + "\n-   Return Value: " + str(return_value))
             
         elif ast['type'] == 'macro':
             self.eval(ast['body'])
+
+        elif ast['type'] == 'return':
+            pass
+
         else:
             raise RuntimeError(f"Unknown AST node type: {ast['type']}")
 
     def _evaluate_condition(self, condition):
         if condition in macros:
             return macros[condition]
+        elif condition == 'return_value':
+            return return_value
         return bool(int(condition))
 
     def _convert_arg(self, arg):
@@ -120,6 +132,8 @@ class Interpreter:
             return arg.strip('"').encode('utf-8')
         elif arg == "NULL":
             return None
+        elif arg == "return_value":
+            return return_value
         else:
             raise ValueError(f"Unknown argument type: {arg}")
 
