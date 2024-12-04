@@ -35,6 +35,8 @@ def parse(tokens):
             return {'type': 'macro', 'body': macros[token]}, index + 1
         elif token == 'load':
             dll_name = tokens[index + 1]
+            if dll_name in macros:
+                dll_name = macros[dll_name]
             loaded_dlls[dll_name] = ctypes.WinDLL(dll_name.strip('"'))
             return None, index + 2
         elif token == 'if':
@@ -53,7 +55,11 @@ def parse(tokens):
             return {'type': 'if', 'condition': condition, 'true': true_branch, 'false': false_branch}, index + 1
         elif token == 'call':
             dll = tokens[index + 1]
+            if dll in macros:
+                dll = macros[dll]
             func = tokens[index + 2]
+            if func in macros:
+                func = macros[func]
             args = []
             i = index + 3
             while i < len(tokens) and tokens[i] != 'endcall':
