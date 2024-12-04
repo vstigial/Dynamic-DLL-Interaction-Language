@@ -7,9 +7,10 @@ macro GetTickCount
     call "kernel32.dll" "GetTickCount" endcall
 end
 
-if true then
+call "./funcs.dll" "Print" "Hello World!" endcall
+
+if return_value >= 13 then
     GetTickCount
-    call "./funcs.dll" "Print" "Hello World!" endcall
 else
     call "kernel32.dll" "Beep" 750 500 endcall
 end

@@ -20,6 +20,14 @@ def parse(tokens):
         else:
             return token, index + 1
 
+    def parse_condition(index):
+        left, index = parse_expression(index)
+        while index < len(tokens) and tokens[index] in {"==", "!=", "<", "<=", ">", ">=", "and", "or"}:
+            operator = tokens[index]
+            right, index = parse_expression(index + 1)
+            left = {'left': left, 'operator': operator, 'right': right}
+        return left, index
+
     def parse_statement(index):
         token = tokens[index]
         print(f"Parsing token: {token}")
@@ -41,7 +49,7 @@ def parse(tokens):
             return None, index + 2
         elif token == 'if':
             index += 1
-            condition, index = parse_expression(index)
+            condition, index = parse_condition(index)
             if tokens[index] != 'then':
                 raise SyntaxError(f"Expected 'then' after condition at index {index}, found {tokens[index]}")
             index += 1
@@ -53,6 +61,7 @@ def parse(tokens):
             if tokens[index] != 'end':
                 raise SyntaxError(f"Expected 'end' after if-else block at index {index}, found {tokens[index]}")
             return {'type': 'if', 'condition': condition, 'true': true_branch, 'false': false_branch}, index + 1
+
         elif token == 'call':
             dll = tokens[index + 1]
             if dll in macros:
@@ -130,10 +139,32 @@ class Interpreter:
             raise RuntimeError(f"Unknown AST node type: {ast['type']}")
 
     def _evaluate_condition(self, condition):
-        if condition in macros:
-            return macros[condition]
+        if isinstance(condition, dict):
+            left = self._evaluate_condition(condition['left'])
+            right = self._evaluate_condition(condition['right'])
+            operator = condition['operator']
+            if operator == '==':
+                return left == right
+            elif operator == '!=':
+                return left != right
+            elif operator == '<':
+                return left < right
+            elif operator == '<=':
+                return left <= right
+            elif operator == '>':
+                return left > right
+            elif operator == '>=':
+                return left >= right
+            elif operator == 'and':
+                return left and right
+            elif operator == 'or':
+                return left or right
         elif condition == 'return_value':
             return return_value
+        elif isinstance(condition, str) and condition == "NULL":
+            return False
+        elif condition > 1:
+            return condition
         return bool(int(condition))
 
     def _convert_arg(self, arg):
