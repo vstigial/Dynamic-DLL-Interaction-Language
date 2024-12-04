@@ -9,7 +9,7 @@ end
 
 if true then
     GetTickCount
-    call "./funcs.dll" "Print" "Hello" endcall
+    call "./funcs.dll" "Print" "Hello World!" endcall
 else
     call "kernel32.dll" "Beep" 750 500 endcall
 end

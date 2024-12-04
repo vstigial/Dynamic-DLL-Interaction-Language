@@ -1,10 +1,13 @@
 import ctypes
+import re
 
 macros = {}
 loaded_dlls = {}
 
 def tokenize(source):
-    tokens = source.replace('\n', ' ').split()
+    token_pattern = r'"(?:[^"\\]|\\.)*"|[^\s"()]+|[()]"'
+    
+    tokens = re.findall(token_pattern, source)
     return tokens
 
 def parse(tokens):
@@ -27,7 +30,7 @@ def parse(tokens):
             except:
                 macro_body, index = parse_expression(index + 2)
             macros[macro_name] = macro_body
-            return None, index+1
+            return None, index + 1
         elif token in macros:
             return {'type': 'macro', 'body': macros[token]}, index + 1
         elif token == 'load':
