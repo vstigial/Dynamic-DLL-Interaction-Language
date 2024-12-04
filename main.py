@@ -5,8 +5,8 @@ macros = {}
 loaded_dlls = {}
 
 def tokenize(source):
-    token_pattern = r'"(?:[^"\\]|\\.)*"|[^\s"()]+|[()]"'
-    
+    source = re.sub(r'#.*', '', source)
+    token_pattern = r'"(?:[^"\\]|\\.)*"|[^\s"()]+|[()]'
     tokens = re.findall(token_pattern, source)
     return tokens
 

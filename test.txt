@@ -1,5 +1,6 @@
-load "kernel32.dll"
+load "kernel32.dll" # pre load library
 
+# set macros for true and false (move these to a standard library or make intrinsic eventually)
 macro true 1 end
 macro false 0 end
 
@@ -9,6 +10,7 @@ end
 
 call "./funcs.dll" "Print" "Hello World!" endcall
 
+# check if print was successful
 if return_value >= 13 then
     GetTickCount
 else
